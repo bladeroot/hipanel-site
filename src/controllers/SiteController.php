@@ -14,6 +14,7 @@ use hipanel\modules\domain\cart\DomainRegistrationProduct;
 use hipanel\modules\domain\forms\BulkCheckForm;
 use hipanel\modules\domain\models\Domain;
 use hipanel\modules\domain\repositories\DomainTariffRepository;
+use hipanel\modules\certificate\repositories\CertificateTariffRepository;
 use hipanel\modules\finance\models\Tariff;
 use hipanel\modules\server\cart\ServerOrderProduct;
 use hipanel\modules\server\helpers\ServerHelper;
@@ -32,9 +33,15 @@ class SiteController extends \hipanel\controllers\SiteController
      */
     protected $domainTariffRepository;
 
-    public function __construct($id, $module, DomainTariffRepository $domainTariffRepository, Impersonator $impersonator, array $config = [])
-    {
+    public function __construct($id,
+        $module,
+        DomainTariffRepository $domainTariffRepository,
+        CertificateTariffRepository $certificateTariffRepository,
+        Impersonator $impersonator,
+        array $config = []
+    ) {
         $this->domainTariffRepository = $domainTariffRepository;
+        $this->certificateTariffRepository = $certificateTariffRepository;
         parent::__construct($id, $module, $impersonator, $config);
     }
 
@@ -75,6 +82,12 @@ class SiteController extends \hipanel\controllers\SiteController
                         'openvzPackages' => $openvzPackages,
                     ];
                 },
+            ],
+            'certiicate' => [
+                'class' => RenderAction::class,
+                'data' => [
+                    'resources' => $this->certificateTariffRepository->getResources(),
+                ],
             ],
             'terms-and-conditions' => [
                 'class' => RenderAction::class,
@@ -149,5 +162,15 @@ class SiteController extends \hipanel\controllers\SiteController
         }
 
         return compact('domains', 'promotion', 'domainZones');
+    }
+
+    protected function getCertificatePriceTableData()
+    {
+        $certiicates = array_shift(Tariff::batchPerform('GetAvailableInfo', [
+            'seller' => SiteHelper::getSeller(),
+            'type' => 'certificate',
+        ]));
+
+        $certificates = SiteHelper::certificate($certificate['resources']);
     }
 }
