@@ -14,7 +14,7 @@ return [
     'aliases' => [
         '@ticket/create' => '/site/feedback',
     ],
-    'controllerNamespace' => 'hipanel\site\controllers',
+    'controllerNamespace' => \hipanel\site\controllers::class,
     'modules' => [
         'domain' => [
             'class' => \hipanel\modules\domain\Module::class,
@@ -23,9 +23,12 @@ return [
             'class' => \hisite\modules\news\Module::class,
         ],
         'pages' => [
+            'pageSize' => 5,
             'storage' => [
-                'class' => \creocoder\flysystem\LocalFilesystem::class,
+                'class' => \hiqdev\yii2\modules\pages\storage\FileSystemStorage::class,
+                'fileSystem' => \creocoder\flysystem\LocalFilesystem::class,
                 'path' => '@hipanel/site/pages',
+
             ],
         ],
         'merchant' => [
